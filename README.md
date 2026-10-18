@@ -1,4 +1,4 @@
-# Nnomm Flash-Deal Claim Service
+# 🛒 Nnomm Flash-Deal Claim Service
 
 A production-grade, high-concurrency flash deal claim and payment reconciliation service built with **Kotlin**, **Spring Boot 3**, **PostgreSQL 16**, and **Flyway**.
 
