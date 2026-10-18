@@ -1,0 +1,61 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: flashdeal-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: flashdeals
+      POSTGRES_USER: ${DATABASE_USER:-postgres}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-postgres} -d flashdeals"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app-1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flashdeal-service-instance-1
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 8080
+      DATABASE_URL: ${DATABASE_URL:-jdbc:postgresql://postgres:5432/flashdeals}
+      DATABASE_USER: ${DATABASE_USER:-postgres}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+      JWT_SECRET: ${JWT_SECRET:-c2VjdXJlX2p3dF9zZWNyZXRfa2V5X2Zvcl9ubm9tbV9mbGFzaGRlYWxfY2xhaW1fc2VydmljZV8yNTZiaXQ=}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-whsec_908f2a781b24479e9a6cf71b3e9b1392}
+      CLAIM_TTL_SECONDS: ${CLAIM_TTL_SECONDS:-600}
+
+  app-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flashdeal-service-instance-2
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 8081
+      DATABASE_URL: ${DATABASE_URL:-jdbc:postgresql://postgres:5432/flashdeals}
+      DATABASE_USER: ${DATABASE_USER:-postgres}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+      JWT_SECRET: ${JWT_SECRET:-c2VjdXJlX2p3dF9zZWNyZXRfa2V5X2Zvcl9ubm9tbV9mbGFzaGRlYWxfY2xhaW1fc2VydmljZV8yNTZiaXQ=}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-whsec_908f2a781b24479e9a6cf71b3e9b1392}
+      CLAIM_TTL_SECONDS: ${CLAIM_TTL_SECONDS:-600}
+
+volumes:
+  postgres_data:

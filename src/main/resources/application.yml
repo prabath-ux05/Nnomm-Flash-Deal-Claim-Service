@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: flash-deal-claim-service
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/flashdeals}
+    username: ${DATABASE_USER:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: FlashDealHikariPool
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+server:
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Application-specific domain settings
+app:
+  jwt:
+    secret: ${JWT_SECRET:c2VjdXJlX2p3dF9zZWNyZXRfa2V5X2Zvcl9ubm9tbV9mbGFzaGRlYWxfY2xhaW1fc2VydmljZV8yNTZiaXQ=}
+  webhook:
+    secret: ${WEBHOOK_SECRET:whsec_908f2a781b24479e9a6cf71b3e9b1392}
+  claims:
+    ttl-seconds: ${CLAIM_TTL_SECONDS:600}
+  expiry:
+    interval-ms: ${EXPIRY_POLL_INTERVAL_MS:1000}
+    initial-delay-ms: ${EXPIRY_INITIAL_DELAY_MS:0}
+    batch-size: ${EXPIRY_BATCH_SIZE:100}
+    enabled: ${EXPIRY_SCHEDULER_ENABLED:true}
